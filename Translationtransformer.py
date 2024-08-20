@@ -143,3 +143,25 @@ class Decoder(nn.Module):
         output = self.fc_out(trg)
         
         return output, attention
+    
+# Implementing the Decoder Layer
+class DecoderLayer(nn.Module):
+    def __init__(self, hidden_dim, n_heads, pf_dim, dropout, device):
+        super().__init__()
+        
+        self.self_attn_layer_norm = nn.LayerNorm(hidden_dim)
+        self.enc_attn_layer_norm = nn.LayerNorm(hidden_dim)
+        self.ff_layer_norm = nn.LayerNorm(hidden_dim)
+        self.self_attention = MultiHeadAttentionLayer(hidden_dim, n_heads, dropout, device)
+        self.encoder_attention = MultiHeadAttentionLayer(hidden_dim, n_heads, dropout, device)
+        self.positionwise_feedforward = PositionwiseFeedforwardLayer(hidden_dim, pf_dim, dropout)
+        self.dropout = nn.Dropout(dropout)
+        
+    def forward(self, trg, enc_src, trg_mask, src_mask):
+        _trg, _ = self.self_attention(trg, trg, trg, trg_mask)
+        trg = self.self_attn_layer_norm(trg + self.dropout(_trg))
+        _trg, attention = self.encoder_attention(trg, enc_src, enc_src, src_mask)
+        trg = self.enc_attn_layer_norm(trg + self.dropout(_trg))
+        _trg = self.positionwise_feedforward(trg)
+        trg = self.ff_layer_norm(trg + self.dropout(_trg))
+        return trg, attention
