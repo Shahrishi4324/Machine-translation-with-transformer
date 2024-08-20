@@ -21,7 +21,7 @@ The project uses the Multi30k dataset, a popular dataset for training machine tr
 
 1. Clone the repository to your local machine:
    ```bash
-   git clone https://github.com/yourusername/transformer_translation.git
+   git clone https://github.com/Shahrishi4324/Machine-translation-with-transformer.git
    ```
 2. Run the code:
    ```bash
